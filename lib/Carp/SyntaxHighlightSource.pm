@@ -76,7 +76,7 @@ sub caller_info {
 
     my $sub_name = Carp::SyntaxHighlightSource::get_subname(\%call_info);
     if ($call_info{has_args}) {
-        my @args = map {Carp::SyntaxHighlightSource::Source::format_arg($_)} @DB::args;
+        my @args = map {Carp::SyntaxHighlightSource::format_arg($_)} @DB::args;
         if ($MaxArgNums and @args > $MaxArgNums) { # More than we want to show?
             $#args = $MaxArgNums;
             push @args, '...';
