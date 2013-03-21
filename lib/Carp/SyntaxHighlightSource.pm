@@ -1,9 +1,13 @@
 package Carp::SyntaxHighlightSource;
 
+use 5.010001;
 use strict;
 use warnings;
 use utf8;
+use SyntaxHighlight::Any qw(highlight_string);
 use Term::ANSIColor;
+#use Text::ANSI::Util qw(ta_strip);
+use Tie::Cache;
 
 # VERSION
 
@@ -131,45 +135,62 @@ sub ret_backtrace {
 sub format_line {
     my ($line_number, $text, %options) = @_;
 
-    return "$text\n" unless $options{number};
-    sprintf "%4d: %s\n", $line_number, $text;
+    $text .= "\n" unless $text =~ /\n$/;
+    return "$text" unless $options{number};
+    sprintf "%4d: %s", $line_number, $text;
 }
 
 sub get_context {
     my ($file, $line, %options) = @_;
 
+    # for best result, we highlight whole file, but we cache a certain amount of
+    # highlighted source files.
+    state $cache;
+    if (!$cache) {
+        $cache = {};
+        tie %$cache, 'Tie::Cache', 16;
+    }
+
     %options = (
         lines  => 3,
         number => 1,
-        color  => 'black on_yellow',
+        color  => 'reverse',
         %options,
     );
 
-    open my $fh, '<', $file or die "can't open $file: $!\n";
-    chomp(my @lines = <$fh>);
-    close $fh or die "can't close $file: $!\n";
+    my $lines;
+    if ($cache->{$file}) {
+        $lines = $cache->{$file};
+    } else {
+        local $/;
+        open my $fh, '<', $file or die "can't open $file: $!\n";
+        my $src = highlight_string(~~<$fh>, {lang=>"perl", output=>"ansi"});
+        $lines = [split /^/, $src];
+        close $fh or die "can't close $file: $!\n";
+        $cache->{$file} = $lines;
 
-    # make calculations easier by having line 1 at element 1
-    unshift @lines => '';
+        # make calculations easier by having line 1 at element 1
+        unshift @$lines => '';
+   }
 
     my $min_line = $line - $options{lines};
-    $min_line = 0 if $min_line < 0;
+    $min_line = 1 if $min_line < 1;
 
     my $max_line = $line + $options{lines};
 
     my $source = "context for $file line $line:\n\n";
 
     for my $c_line ($min_line .. $line - 1) {
-        next unless defined $lines[$c_line];
-        $source .= format_line($c_line, $lines[$c_line], %options);
+        next unless defined $lines->[$c_line];
+        $source .= format_line($c_line, $lines->[$c_line], %options);
     }
 
     $source .=
-        format_line($line, colored([ $options{color} ], $lines[$line]), %options);
+        colored([$options{color}], format_line($line, $lines->[$line], %options));
 
     for my $c_line ($line + 1 .. $max_line) {
-        next unless defined $lines[$c_line];
-        $source .= format_line($c_line, $lines[$c_line], %options);
+        next unless defined $lines->[$c_line];
+        $source .= format_line($c_line, $lines->[$c_line], %options);
     }
 
     $source .= ('=' x 75) . "\n";
