@@ -54,6 +54,10 @@ END {
 
  % perl -MCarp::Always::SyntaxHighlightSource script.pl
 
+Or, for less carpal tunnel syndrome:
+
+ % perl -MCarp::Always::SHS script.pl
+
 
 =head1 DESCRIPTION
 
