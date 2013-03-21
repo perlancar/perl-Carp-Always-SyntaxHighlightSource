@@ -205,6 +205,8 @@ sub source_cluck ($;@) { warn longmess_heavy(@_) }
 1;
 #ABSTRACT: Die/warn of errors with stack backtrace and source context
 
+=for Pod::Coverage .*
+
 =head1 SYNOPSIS
 
     use Carp::SyntaxHighlightSource 'source_cluck';
