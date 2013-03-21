@@ -121,9 +121,12 @@ sub ret_backtrace {
     }
 
     my %i = caller_info($i);
+    my $context = get_context($i{file}, $i{line}, %options);
+    print $context;
     $mess = "$err at $i{file} line $i{line}$tid_msg\n";
 
     while (my %i = caller_info(++$i)) {
+        #use Data::Dump; dd \%i;
         my $context = get_context($i{file}, $i{line}, %options);
         print $context;
         $mess .= "\t$i{sub_name} called at $i{file} line $i{line}$tid_msg\n";
