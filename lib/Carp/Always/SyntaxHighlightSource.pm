@@ -75,4 +75,6 @@ L<Carp::Source> and L<Carp::Source::Always>
 
 L<carpa>
 
+L<Devel::Confess>
+
 =cut
