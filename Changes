@@ -1,4 +1,4 @@
-0.03    2016-03-16 (PERLANCAR)
+0.03    2016-03-16  Released-By: PERLANCAR
 
 	- No functional changes.
 
@@ -6,12 +6,12 @@
 	  Carp::Always' ranking.
 
 
-0.02    2013-03-21 (SHARYANTO)
+0.02    2013-03-21  Released-By: SHARYANTO
 
         - Add alias module Carp::Always::SHS.
 
 
-0.01    2013-03-21 (SHARYANTO)
+0.01    2013-03-21  Released-By: SHARYANTO
 
         - First release. Created this because I was somewhat inspired by
           http://phperror.net/ . Yes, this module is less pretty; it needs some
